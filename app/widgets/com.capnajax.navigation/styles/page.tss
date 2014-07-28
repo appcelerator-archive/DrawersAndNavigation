@@ -1,0 +1,17 @@
+
+
+"#drawerpull": {
+	width: 25,
+	height: 50,
+	left: 0,
+	backgroundImage: "/images/ios/com.capnajax.navigation/drawerpull.png",
+	opacity: 0.8
+},
+
+"#drawer": {
+	width: 260,
+	left: -300,
+	visible: false,
+	backgroundColor: "black",
+	opacity: 0.8
+}

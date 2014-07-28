@@ -1,0 +1,4 @@
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="50" height="100">
+  <path d="M0 0 A50 50 180 0 1 0 100 L0 65 L22 65 A3 3 180 0 0 22 59 L0 59 L0 53 L22 53 A3 3 180 0 0 22 47 L0 47 L0 41 L22 41 A3 3 180 0 0 22 35 L0 35 L0 0" fill="rgba(204, 204, 204)" stroke="none" />
+</svg>

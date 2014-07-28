@@ -1,0 +1,11 @@
+<Alloy>
+	<View class="container">
+		<View id="menuItems">
+			<Label class="menuItem">Do Something</Label>
+			<Label class="menuItem">Do Another Thing</Label>
+			<Label class="menuItem">Do That Other Thing</Label>
+			<Label class="menuItem">Stop Doing Things</Label>
+			<Label class="menuItem">Exit the Thing-Doer</Label>
+		</View>
+	</View>
+</Alloy>

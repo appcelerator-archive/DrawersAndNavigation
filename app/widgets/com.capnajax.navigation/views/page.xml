@@ -1,0 +1,7 @@
+<Alloy>
+	<Window platform="ios" id="win">
+		<View id="content" />		
+		<View id="drawerpull" />
+		<View id="drawer" />
+	</Window>
+</Alloy>

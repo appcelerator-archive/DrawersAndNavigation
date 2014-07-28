@@ -1,0 +1,17 @@
+
+"#widget[platform=android]": {
+	navBarHidden: false
+}
+"#drawerpull[platform=android]": {
+	width: 25,
+	height: 50,
+	left: 0,
+	backgroundImage: "/images/com.capnajax.navigation/drawerpull.png"
+},
+
+"#drawer[platform=android]": {
+	width: 260,
+	left: -300,
+	visible: false,
+	backgroundColor: "black"
+}

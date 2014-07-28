@@ -1,0 +1,18 @@
+<Alloy>
+	<NavigationWindow platform="ios">
+		<Widget src="com.capnajax.navigation" name="page" id="first" />
+	</NavigationWindow>
+
+	<Window platform="android">
+        <Menu id="menu" platform="android" onHomeIconItemSelected="back">
+            <MenuItem id="item1" title="Settings" />
+            <MenuItem id="item2" title="Search" />
+        </Menu>
+		<ScrollableView id="navigation">
+			<View id="content" />
+		</ScrollableView>
+		<View id="drawerpull" />
+		<View id="drawer" />		
+	</Window>
+
+</Alloy>

@@ -1,0 +1,5 @@
+<Alloy>
+	<View class="container" id="window2">
+		<Label id="label">Window 2</Label>
+	</View>
+</Alloy>

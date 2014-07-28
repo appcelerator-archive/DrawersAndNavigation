@@ -1,0 +1,12 @@
+
+".container": {
+  
+},
+"#menuItems": {
+	left: 10, right: 10, top: 10, height: Titanium.UI.SIZE, layout: "vertical"
+},
+".menuItem": {
+	color: "#fff",
+	height: 50
+}
+

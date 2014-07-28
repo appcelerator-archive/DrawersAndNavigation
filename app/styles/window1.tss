@@ -1,0 +1,7 @@
+
+".container" : {
+	backgroundColor:"cyan",
+	height: Titanium.UI.FILL,
+	width: Titanium.UI.FILL,
+	title: "window1"
+}
