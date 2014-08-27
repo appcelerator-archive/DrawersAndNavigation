@@ -1,0 +1,15 @@
+<Alloy>
+	<View class=".container">
+		<Label id="windowname" />
+		
+		<View id="navigationParent">
+			<Button id="backto" />
+			<Button id="back"/>
+			<Button id="forward" />
+			<Button id="top" />
+			<Button id="altpath" />
+			<View id="hub" />
+		</View>
+		
+	</View>
+</Alloy>

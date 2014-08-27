@@ -1,11 +1,13 @@
 <Alloy>
 	<View class="container">
 		<View id="menuItems">
+			<Label id="mainPath" class="menuItem">Primary Path</Label>
+			<Label id="altPath" class="menuItem">Alternate Path</Label>
 			<Label class="menuItem">Do Something</Label>
 			<Label class="menuItem">Do Another Thing</Label>
 			<Label class="menuItem">Do That Other Thing</Label>
 			<Label class="menuItem">Stop Doing Things</Label>
-			<Label class="menuItem">Exit the Thing-Doer</Label>
+			<Label id="exit" class="menuItem">Exit the Thing-Doer</Label>
 		</View>
 	</View>
 </Alloy>

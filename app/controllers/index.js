@@ -6,12 +6,26 @@ function doClick(e) {
 		drawerContent: Alloy.createController('drawer').getView()
 	});
 
-	nav.advance(Alloy.createController("window1").getView());
+	var firstController = Alloy.createController("window1");
+	nav.advance(firstController.getView());
 
 	Alloy.Globals.navigation = nav;
+
+	// this line is not necessary for the widget, only saving it for use in a test case.
+	Alloy.Globals.window1 = firstController.getView();
 }
 
-$.index.open();
+$.loginWindow.addEventListener('open', function() {
+	if (OS_ANDROID) {
+		$.loginWindow.activity.actionBar.hide();
+	}
+});
+
+$.loginWindow.open();
+
+setTimeout(function() {
+	$.label.fireEvent("click");
+}, 200);
 
 
-setTimeout(function() {$.label.fireEvent("click",{});}, 200);
+

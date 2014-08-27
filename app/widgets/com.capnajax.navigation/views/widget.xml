@@ -4,14 +4,10 @@
 	</NavigationWindow>
 
 	<Window platform="android">
-        <Menu id="menu" platform="android" onHomeIconItemSelected="back">
-            <MenuItem id="item1" title="Settings" />
-            <MenuItem id="item2" title="Search" />
+        <Menu id="menu" platform="android" onHomeIconItemSelected="toggleDrawer" >
+            <MenuItem id="item1" title="Menu" />
         </Menu>
-		<ScrollableView id="navigation">
-			<View id="content" />
-		</ScrollableView>
-		<View id="drawerpull" />
+		<ScrollableView id="navigation"/>
 		<View id="drawer" />		
 	</Window>
 

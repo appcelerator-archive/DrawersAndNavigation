@@ -1,17 +1,36 @@
 
 
-"#drawerpull": {
-	width: 25,
-	height: 50,
-	left: 0,
-	backgroundImage: "/images/ios/com.capnajax.navigation/drawerpull.png",
-	opacity: 0.8
-},
+// "#drawerpull": {
+	// width: 25,
+	// height: 50,
+	// left: 0,
+	// backgroundImage: "/images/ios/com.capnajax.navigation/drawerpull.png",
+	// opacity: 0.8
+// },
+
+".menuButton[platform=ios]":{
+	height:30, 
+	width:30,
+	backgroundImage:'/images/ios/com.capnajax.navigation/drawerButton.png',
+}
 
 "#drawer": {
 	width: 260,
 	left: -300,
 	visible: false,
 	backgroundColor: "black",
-	opacity: 0.8
+}
+
+"#win": {
+	backButtonTitle:'',
+	barColor:'#005596',
+	extendEdges:[Ti.UI.EXTEND_EDGE_TOP],
+	tintColor:'#005596',
+	navTintColor:'#fff',
+	statusBarStyle:Ti.UI.iPhone.StatusBar.LIGHT_CONTENT,
+	translucent:false,
+	font:{
+		fontSize:12,
+		fontFamily:'sans-serif-light',
+	}
 }

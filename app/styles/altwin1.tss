@@ -1,0 +1,11 @@
+
+".container" : {
+	backgroundColor:"white",
+	height: Titanium.UI.FILL,
+	width: Titanium.UI.FILL,
+	title: "altwin1"
+}
+"#control" : {
+	height: Titanium.UI.FILL,
+	width: Titanium.UI.FILL
+}

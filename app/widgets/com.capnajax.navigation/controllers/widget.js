@@ -1,113 +1,267 @@
 
 var drawerOpen = false;
-var drawerPeekBasis = 0;
 var duration = 400;
 
-var windowStack = OS_IOS ? null : [];
-
 var init = function(opts) {
-	opts.drawerContent && (OS_IOS ? drawerContent = opts.drawerContent : drawer.add(opts.drawerContent));
+	if(opts.drawerContent) {
+		drawerContent = opts.drawerContent;
+		if(!OS_IOS) {
+			drawer.add(opts.drawerContent);
+		}
+	}
 };
 
-var drawer, drawerpull;
+var drawer, drawerpull, drawerContent;
 
 // on iOS we have to set the drawer and drawerpull with each navigation, on others we can set the content once
 if(OS_IOS) {
-	var drawerContent = null;
+	drawerContent = null;
 } else {
 	drawer = $.drawer;
 	drawerpull = $.drawerpull;
 }
 
+// TODO remove this debug code
+var logObj = function(obj, name) {
+	var logStr = (name+":\n");
+	for(var i in obj) {
+		logStr += "\t"+i+" == "+(null==obj[i]?"null":(typeof obj[i] === 'function'?'[function()]':obj[i].toString())) + '\n';
+	}
+	logStr += '\n';
+	console.log(logStr);
+};
+
+if(OS_IOS) {
+	var widgetViews = [];
+	
+	var removeWidgetView = function(e) {
+		for(var i = widgetViews.length-1; i >= 0; i--) {
+			if(widgetViews[i].window === e.source) {
+				widgetViews.splice(i, 1);
+				return;
+			}
+		}
+	};
+}
+
 var advance = function(view) {
 
-	Ti.API.trace("com.capnajax.navigation::widget::retreat - advance");
-	
 	drawer && closeDrawer(true);
+	removeDrawerEvents();
 
 	if(OS_IOS) {
 
-		var pageWidget;
+		setTimeout(function() {
 
-		drawer && drawerpull && removeDrawerEvents();
+			var pageWidget, win;
+	
+			if(widgetViews.length === 0) {
+				// adding the root to the widgets. Because Alloy requires NavigationWindow to have at least one child,
+				// the widget already exists, we just add our stuff to it
+				pageWidget = $.first;
+				win = $.first.getView();
+	
+			} else {
+				pageWidget = Widget.createWidget('com.capnajax.navigation', 'page');
+				win = pageWidget.getView();
+				
+				//pageWidget.getView("drawer").remove(drawerContent);
+			}
+	
+			widgetViews.push({window: win, widget: pageWidget, content:view});
+			win.addEventListener("close", removeWidgetView);
+			win.addEventListener("close", function() {closeDrawer(true);});
+	
+			// create window using the page widget
+			pageWidget.content.add(view);
+	
+			win.addEventListener('swipe', function(e) {
+				if (e.direction === 'right' && !drawerOpen) {
+					openDrawer();
+				}
+				if (e.direction === 'left' && drawerOpen) {
+					closeDrawer();	
+				}
+			});
+	
+			// move drawer to the new window
+			drawer = pageWidget.getView("drawer");
+			drawerpull = pageWidget.getView("drawerpull");
+	
+			drawerContent && drawer.add(drawerContent);
+	
+			if (widgetViews.length > 1 ) {
+				win.leftNavButton = undefined;
+			} else {
+				setupDrawerEvents();
+			}
+	
+			// advance animation
+			if(widgetViews.length > 1) {
+				$.widget.openWindow(win, {animated:true});
+			}
 
-		if(null == windowStack) {
-			// adding the root to the widgets. Because Alloy requires NavigationWindow to have at least one child,
-			// the widget already exists, we just add our stuff to it
-			pageWidget = $.first;
-			windowStack = [];
-		} else {
-			pageWidget = Widget.createWidget('com.capnajax.navigation', 'page');
-		}
-		windowStack.push(pageWidget);
-
-		// create window using the page widget
-		pageWidget.content.add(view);
-
-		// advance animation
-		$.widget.openWindow(pageWidget.getView(), {animated:true});
-		
-		// move drawer to the new window
-		drawer = pageWidget.getView("drawer");
-		drawerpull = pageWidget.getView("drawerpull");
-
-		// set up events
-		pageWidget.getView("win").addEventListener("close", retreat);
-
-		drawerContent && drawer.add(drawerContent);
-		setupDrawerEvents();
+		}, 0);
 		
 	} else {
+		
+		$.widget.addEventListener('swipe', function(e) {
+			if (e.direction === 'right' && !drawerOpen) {
+				openDrawer();
+			}
+			if (e.direction === 'left' && drawerOpen) {
+				closeDrawer();	
+			}
+		});
 
 		// place it to the right of the screen then slide it in over top of the existing content
-		$.navigation.add(view);
-		windowStack.push(view);
+		$.navigation.addView(view);
+		
 		$.navigation.scrollToView(view);		
 		
-		$.widget.title = _.last(windowStack).title;
+		$.widget.title = _.last($.widget.children).title;
 	}
 	
 };
 
-var retreat = function() {
 
-	Ti.API.trace("com.capnajax.navigation::widget::retreat - called");
+/**
+ * Goes back in the progression of screens.
+ * @param {number|Ti.UI.View} how far back to go. If omitted, this will go back one screen. If negative, it'll go
+ * 	back n screens. If positive, it'll go back to the nth screen. If the index is actually a view, it'l go back to
+ * 	that view.
+ */
+var retreat = function(index) {
 	
-	closeDrawer(true);
+	var viewsArray = OS_IOS ? widgetViews : $.navigation.views;
 	
-	if(windowStack.length > 1) {
+	Ti.API.trace("com.capnajax.navigation::widget::retreat("+index+") called, viewsArray.length = " + viewsArray.length);
+	
+	// determine how many screens I need to retreat
+	var steps = 0;
+	if(undefined === index) {
+		steps = 1;
+		
+	} else if(typeof index === 'object') {
+		
+		for(i = viewsArray.length-1; i >= 0; i--) {
+			if(index === (OS_IOS ? viewsArray[i].content : viewsArray[i])) {
+				steps = viewsArray.length - i - 1;
+				break;
+			}
+		}
+		
+	} else if(index < 0) {
+		steps = -index;
+		
+	} else if(index > 0) {
+		steps = viewsArray.length - index;
+		
+	}
+	
+	Ti.API.trace("com.capnajax.navigation::widget::retreat("+index+") steps = " + steps);
+
+	if(steps <= 0) {
+		// zero or invalid input
+		// do nothing;
+		return;
+	}
+	
+	if(steps >= viewsArray.length) {
+		// ensure I am not going back beyond the beginning
+		steps = viewsArray.length - 1;
+		
+	}
+	
+	drawer && closeDrawer(true);
+	removeDrawerEvents();
+
+	if(OS_IOS) {
+
+		// remove the drawer from the about-to-be-closed window
+		_.last(widgetViews).widget.getView("drawer").removeAllChildren();
+
+		// close all the windows that are no longer needed, the current window must be closed last.
+		windowsToClose = _.last(widgetViews, steps);
+		_.each(windowsToClose, function(element) {
+			// the setTimeout is to ensure that the operation doesn't occur before the closeDrawer has is complete.
+			setTimeout(function() {
+				$.widget.closeWindow(element.window);
+			}, 0);
+		});
+
+		// set up the drawer
+		var newCurrentWidget = _.first(_.last(widgetViews, steps+1)).widget;
+		drawer = newCurrentWidget.getView("drawer");
+		drawerpull = newCurrentWidget.getView("drawerpull");
+		
+		if(drawerContent) {
+			setTimeout(function() {
+				// the setTimeout is to ensure that the operation doesn't occur before the closeDrawer has is complete.
+				drawer.add(drawerContent);
+			}, 0);
+		}
+		setTimeout(setupDrawerEvents, 0);
+
+	} else {
+
+		$.navigation.scrollToView(_.first(_.last($.navigation.views, steps+1)));
+		for(var i = 0; i < steps; i++) {
+			Ti.API.trace("com.capnajax.navigation::widget::retreat("+index+") - removing view");
+			$.navigation.removeView(_.last($.navigation.views));
+		}
+		Ti.API.trace("com.capnajax.navigation::widget::retreat("+index+") - scrolling to view");
+		
+	}
+
+};
+
+var home = function(newHome) {
+
+	if(newHome) {
+		
+		closeDrawer();
+		
 		if(OS_IOS) {
 			
-			removeDrawerEvents();
-			
-			// adjust the window Stack
-			windowStack.pop();
+			for(var i = 1; i < widgetViews.length; i++) {
+				$.widget.closeWindow(widgetViews[i].window);
+			}
 
-			// move drawer to the previous window
-			drawer = _.last(windowStack).getView("drawer");
-			drawerContent && drawer.add(drawerContent);
+			var oldContent = widgetViews[0].content;
+
+			widgetViews = [];
+
+			advance(newHome);
 			
-			drawerpull = _.last(windowStack).getView("drawerpull");
-			
-			setTimeout(setupDrawerEvents, 0);
-			
+			$.first.content.remove(oldContent);
+						
+	
 		} else {
-			
-			// fade the old window out
-			$.navigation.remove(windowStack.pop());
-			$.widget.title = _.last(windowStack).title;
-			
+	
+			var oldViews = _.clone($.navigation.views);
+			advance(newHome);
+			setTimeout(function(){
+				_.each(oldViews, function(element, index) {
+					$.navigation.removeView(index);
+				});
+			},500);
 		}
+
+	} else {
+
+		retreat(1);
+
 	}
 	
+	
 };
+
 
 /**
  * Open drawer.
  */
 var openDrawer = function() {
-
-	Ti.API.trace("com.capnajax.navigation::widget::openDrawer - called");
 
 	// animate drawer openning -- both the drawer and the drawer pull, but the pull can lag slightly behind the drawer
 
@@ -118,8 +272,9 @@ var openDrawer = function() {
 	drawer.visible = true;
 	drawerOpen = true;
 	
+	drawerContent.fireEvent("draweropen");
+	
 	drawer.animate({left: 0, duration: animationDuration});
-	drawerpull.animate({left: drawer.rect.width, duration: animationDuration});
 };
 
 /**
@@ -128,81 +283,19 @@ var openDrawer = function() {
  */
 var closeDrawer = function(now) {
 	
-	Ti.API.trace("com.capnajax.navigation::widget::closeDrawer - called");
-
-	// the drawerpull.rect.x < 20 is to ensure that a touchend that is really teh result of a click doens't mess with
-	// the animation on click
-	if(now || drawerpull.rect.x < 20) {
-		drawerpull.left = 0;
-		drawer.left = -drawer.rect.width;		
-		drawerOpen = false;
+	if(now) {
+		drawer.applyProperties({
+			left: -drawer.rect.width,
+			visible: false
+		});
+		drawerOpen = false;	
+		drawerContent.fireEvent("drawerclosed", {immediate: true});
 	} else {
-		// animate the drawer closing -- both the drawer and the drawer pull, but the drawer can lag slightly behind the
-		// pull
-		// the time for the animation, so that the drawer is moving at about the same speed no matter where the
-		// animation starts from
-		var animationDuration = duration * drawerpull.rect.x / drawer.rect.width;
-		drawerpull.animate({left: 0, duration: animationDuration});
-		drawer.animate({left: -drawer.rect.width, duration: animationDuration}, function() {
+		drawer.animate({left: -drawer.rect.width, duration: duration}, function() {
 			drawer.visible = false;
 			drawerOpen = false;	
+			drawerContent.fireEvent("drawerclosed", {immediate: false});
 		});
-	}
-};
-
-/**
- * Opens drawer to the specific x coordinate up to the width of the drawer. Even though the drawer is event partially 
- * visible, it's considered "open"
- * @param {Object} the event object that prompted the peek.
- */
-var peekInDrawer = function(e) {
-	
-	Ti.API.trace("com.capnajax.navigation::widget::peekInDrawer - called, e.x = ", e.x);
-
-	var x = e.x + drawerpull.rect.x - drawerPeekBasis; // x is relative to the left side of the screen
-	
-	if(x < 0) {
-		drawerOpen = false;
-		drawer.left = -drawer.rect.width;
-		drawer.visible = false;
-		drawerpull.left = 0;
-		return;
-	}
-	
-	if(false == drawerOpen) {
-		drawer.visible = true;
-	}
-	
-	if(x > 0) {
-		drawerOpen = true;
-	}
-	x = Math.min(x, drawer.rect.width);
-	
-	drawer.left = x-drawer.rect.width;
-	drawerpull.left = x;
-
-	// move the drawer and the drawer pull
-};
-
-/**
- * Determine the location of the finger in the drawerpull to ensure that it doesn't jump under the finger
- */
-var drawerPeekStart = function(e) {
-	drawerPeekBasis = e.x;
-};
-
-/**
- * Determines if the drawer should be opened completely after peeking inside. If it's opened half way, it'll be allowed
- * to open the rest of the way
- */
-var drawerPeekEnd = function(e) {
-
-	Ti.API.trace("com.capnajax.navigation::widget::drawerPeekEnd - called");
-
-	if(drawerpull.rect.x > drawer.rect.width/2) {
-		openDrawer();
-	} else {
-		closeDrawer();
 	}
 };
 
@@ -211,42 +304,28 @@ var drawerPeekEnd = function(e) {
  */
 var toggleDrawer = function() {
 
-	Ti.API.trace("com.capnajax.navigation::widget::toggleDrawer - called");
-
 	drawerOpen ? closeDrawer() : openDrawer();
+
 };
 
 var setupDrawerEvents = function() {
 
-	Ti.API.trace("com.capnajax.navigation::widget::setupDrawerEvents - called");
-
-	if(OS_IOS) {
-		drawerpull.addEventListener("touchstart", drawerPeekStart);
-		drawerpull.addEventListener("touchend", drawerPeekEnd);
-		drawerpull.addEventListener("touchmove", _.throttle(peekInDrawer, 50));
+	if(OS_IOS) {	
+		drawerpull.addEventListener("click", toggleDrawer);	
 	}
-
-	drawerpull.addEventListener("click", toggleDrawer);	
+	
 };
 
 var removeDrawerEvents = function() {
 
-	Ti.API.trace("com.capnajax.navigation::widget::removeDrawerEvents - called");
-
-	if(OS_IOS) {
-		drawerpull.removeEventListener("touchstart", drawerPeekStart);
-		drawerpull.removeEventListener("touchend", drawerPeekEnd);
-		drawerpull.removeEventListener("touchmove", _.throttle(peekInDrawer, 50));
-	}
-
-	drawerpull.removeEventListener("click", toggleDrawer);	
+	drawerpull && drawerpull.removeEventListener("click", toggleDrawer);	
 
 };
 
 if(OS_ANDROID) {
 
 	var back = function(e) {
-		if(windowStack.length > 1) {
+		if($.navigation.views.length > 1) {
 			retreat();
 			e.cancelBubble = true;
 		} else {
@@ -266,9 +345,8 @@ if(!OS_IOS) {
 _.extend($, {
 	init: init,
 	advance: advance,
-	retreat: retreat
+	retreat: retreat,
+	home: home
 });
 
 $.widget.open();
-
-Ti.API.trace("com.capnajax.navigation::widget:: - started");

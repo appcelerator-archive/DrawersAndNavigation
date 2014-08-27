@@ -1,5 +1,5 @@
 
 ".container" : {
-	backgroundColor: "blue",
+	backgroundColor: "white",
 	title: "window2"  
 }

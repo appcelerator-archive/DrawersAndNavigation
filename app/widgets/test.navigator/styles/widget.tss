@@ -1,0 +1,53 @@
+".container[platform=android]": {
+	opacity: 0
+}
+
+"Button": {
+	borderColor: "white",
+	borderWidth: 3,
+	backgroundColor: "#66F",
+	color: "white",
+	visible: false,
+	width: "40%",
+	height: "20%"
+}
+
+"#windowname": {
+	width: "100%",
+	textAlign: Titanium.UI.TEXT_ALIGNMENT_CENTER,
+	height: 20
+}
+
+"#navigationParent": {
+	borderColor: "white",
+	borderRadius: 100,
+	borderWidth: 3
+},
+
+"#backto": {
+	center: {x: "28.284%", y: "28.284%"},
+	height: "20%",
+	width: "40%"
+}
+"#back": {
+	center: {x: "20%", y:"50%" }
+},
+"#forward": {
+	center: {x: "80%", y:"50%" }
+},
+"#top": {
+	center: {x: "50%", y:"20%" }
+},
+"#altpath": {
+	center: {x: "50%", y:"80%" }
+},
+"#hub": {
+	width: "28.284%",
+	height: "28.284%",
+	center: {x: "50%", y: "50%"},
+	borderRadius: 80,//"14.142%",
+	borderColor: "white",
+	backgroundColor: "white"
+}
+
+

@@ -1,7 +1,9 @@
 <Alloy>
-	<Window platform="ios" id="win">
+	<Window platform="ios" id="win" barColor="gray">
+        <LeftNavButton id="leftNavButton">
+            <Button id="drawerpull" class="menuButton"/>
+        </LeftNavButton>
 		<View id="content" />		
-		<View id="drawerpull" />
 		<View id="drawer" />
 	</Window>
 </Alloy>

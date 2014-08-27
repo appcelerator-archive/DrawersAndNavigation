@@ -1,7 +1,14 @@
 var args = arguments[0] || {};
 
-function doClick(e) {
-	Alloy.Globals.navigation.advance(Alloy.createController("window2").getView());	
-}
+$.control.init({
+	windowname: "Window 1",
+	buttons: {
+		forward: {
+			text: "Window 2",
+			callback: function(e) {
+				Alloy.Globals.navigation.advance(Alloy.createController("window2").getView());
+			}
+		}
+	}
+});
 
-setTimeout(function(){$.label.fireEvent('click');},200);

@@ -8,6 +8,7 @@
     "os:ios": {},
     "os:mobileweb": {},
     "dependencies": {
-        "com.capnajax.navigation": "1.0"
+        "com.capnajax.navigation": "1.0",
+        "test.navigator": "1.0"
     }
 }
