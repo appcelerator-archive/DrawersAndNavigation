@@ -10,6 +10,7 @@
   	viewShadowColor: 'gray',
 },
 
+"#mainPath":{},
 
 "#menuItems": {
 	left: 10, right: 10, top: 10, height: 200, layout: "vertical", backgroundColor: "yellow"

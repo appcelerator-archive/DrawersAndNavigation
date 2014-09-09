@@ -8,6 +8,7 @@
 			<Button id="forward" />
 			<Button id="top" />
 			<Button id="altpath" />
+			<View id="hubInner" />
 			<View id="hub" />
 		</View>
 		

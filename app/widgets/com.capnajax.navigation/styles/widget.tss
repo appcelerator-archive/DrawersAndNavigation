@@ -3,14 +3,13 @@
 	navBarHidden: false,
 	exitOnClose: true
 }
-
 "#drawer[platform=android]": {
 	width: 260,
 	left: -300,
 	visible: false,
 	backgroundColor: "black"
 }
-
+"#first":{},
 "MenuItem[platform=android]": {
     showAsAction: Ti.Android.SHOW_AS_ACTION_ALWAYS
 },
@@ -18,14 +17,6 @@
 "#item1[platform=android]": {
     icon: Ti.Android.R.drawable.ic_menu_preferences
 },
-
-"#menu[platform=android]": {
-
-    //icon: "/images/drawerIcon.png",
-    icon: "images/ic_drawer.png",
-    displayHomeAsUp: false,
-    backgroundImage: "/actionbackground.png"
-}
 
 "#navigation[platform=android]": {
 	scrollingEnabled: false

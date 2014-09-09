@@ -1,18 +1,14 @@
 
 
-// "#drawerpull": {
-	// width: 25,
-	// height: 50,
-	// left: 0,
-	// backgroundImage: "/images/ios/com.capnajax.navigation/drawerpull.png",
-	// opacity: 0.8
-// },
-
 ".menuButton[platform=ios]":{
 	height:30, 
 	width:30,
-	backgroundImage:'/images/ios/com.capnajax.navigation/drawerButton.png',
-}
+	backgroundImage:'/images/ios/com.capnajax.navigation/drawerButton.png'
+},
+
+"#leftNavButton":{},
+"#drawerpull":{},
+"#content":{},
 
 "#drawer": {
 	width: 260,

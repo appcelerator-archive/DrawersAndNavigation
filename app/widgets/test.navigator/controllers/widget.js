@@ -63,6 +63,9 @@ var setControlSize = function() {
 
 $.widget.addEventListener('postlayout', setControlSize);
 $.navigationParent.addEventListener('postlayout', function() {
+	$.hubInner.applyProperties({
+		borderRadius: ($.hubInner.rect.width/2)
+	});
 	$.hub.applyProperties({
 		borderRadius: ($.hub.rect.width/2)
 	});

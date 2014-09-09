@@ -45,8 +45,15 @@
 	width: "28.284%",
 	height: "28.284%",
 	center: {x: "50%", y: "50%"},
-	borderRadius: 80,//"14.142%",
+	borderRadius: 80,
 	borderColor: "white",
+	backgroundColor: "white"
+}
+"#hubInner": {
+	width: "28.284%",
+	height: "28.284%",
+	center: {x: "50%", y: "50%"},
+	borderRadius: 80,
 	backgroundColor: "white"
 }
 

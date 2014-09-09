@@ -11,14 +11,14 @@ var init = function(opts) {
 	}
 };
 
-var drawer, drawerpull, drawerContent;
+var drawer, drawerContent;
 
-// on iOS we have to set the drawer and drawerpull with each navigation, on others we can set the content once
+// on iOS we have to set the drawer with each navigation, on others we can set the content once
 if(OS_IOS) {
 	drawerContent = null;
+	$.first.drawerpull.addEventListener('click', toggleDrawer);
 } else {
 	drawer = $.drawer;
-	drawerpull = $.drawerpull;
 }
 
 // TODO remove this debug code
@@ -32,22 +32,90 @@ var logObj = function(obj, name) {
 };
 
 if(OS_IOS) {
+	
 	var widgetViews = [];
 	
+	/**
+	 * removes the widget of the view from the widgetViews list. This is fired onClose for iOS only, because we don't
+	 * trigger all window closures, sometimes the 
+	 */
 	var removeWidgetView = function(e) {
+
+		Ti.API.debug("com.capnajax.navigation::widget::removeWidgetView - called");
+
 		for(var i = widgetViews.length-1; i >= 0; i--) {
 			if(widgetViews[i].window === e.source) {
 				widgetViews.splice(i, 1);
-				return;
+				break;
 			}
 		}
+		
+		Ti.API.debug("com.capnajax.navigation::widget::removeWidgetView - calling resetDrawer");
+		resetDrawer();
 	};
+	
+	/**
+	 * ensure the drawer is linked to the correct window. 
+	 */
+	var resetDrawer = _.debounce(function() {
+		
+		Ti.API.debug("com.capnajax.navigation::widget::resetDrawer - called");
+		
+		// set up the drawer
+		var newCurrentWidget = widgetViews && (widgetViews.length > 0) && _.last(widgetViews).widget;
+		if(newCurrentWidget) {
+			drawer = newCurrentWidget.getView("drawer");
+			
+			if(drawerContent) {
+				setTimeout(function() {
+					// the setTimeout is to ensure that the operation doesn't occur before the closeDrawer has is complete.
+					drawer.add(drawerContent);
+				}, 0);
+			}
+		} else {
+			drawer = null;
+		}
+		
+	}, 20, true);
+	
+
+} else {
+	
+	/**
+	 * Only used on android. Updates the action bar so the title matches the window and the top-left icon is sensitive
+	 * to the scroll position -- opens the drawer if on the first page, goes back if not.
+	 */
+	var updateActionBar = function() {
+		
+		setTimeout(function() {
+			var actionBar = $.widget.activity.actionBar;
+			if(actionBar && $.navigation.views && $.navigation.views.length > 0) {
+				var lastView = _.last($.navigation.views);
+				actionBar.title = _.last($.navigation.views).title;
+				
+				if($.navigation.views.length == 1) {
+					
+					actionBar.icon = "/drawable-xxhdpi/com.capnajax.navigation/ic_action_overflow.png";
+					actionBar.onHomeIconItemSelected = toggleDrawer;
+					
+				} else {
+					
+					actionBar.icon = "/drawable-xxhdpi/com.capnajax.navigation/ic_action_back.png";
+					actionBar.onHomeIconItemSelected = function() {setTimeout(retreat, 0);};
+					
+				}
+				
+			}
+		}, 10);
+		
+	};
+	
 }
+
 
 var advance = function(view) {
 
 	drawer && closeDrawer(true);
-	removeDrawerEvents();
 
 	if(OS_IOS) {
 
@@ -69,8 +137,8 @@ var advance = function(view) {
 			}
 	
 			widgetViews.push({window: win, widget: pageWidget, content:view});
-			win.addEventListener("close", removeWidgetView);
 			win.addEventListener("close", function() {closeDrawer(true);});
+			win.addEventListener("close", removeWidgetView);
 	
 			// create window using the page widget
 			pageWidget.content.add(view);
@@ -86,14 +154,11 @@ var advance = function(view) {
 	
 			// move drawer to the new window
 			drawer = pageWidget.getView("drawer");
-			drawerpull = pageWidget.getView("drawerpull");
 	
 			drawerContent && drawer.add(drawerContent);
 	
 			if (widgetViews.length > 1 ) {
 				win.leftNavButton = undefined;
-			} else {
-				setupDrawerEvents();
 			}
 	
 			// advance animation
@@ -120,6 +185,8 @@ var advance = function(view) {
 		$.navigation.scrollToView(view);		
 		
 		$.widget.title = _.last($.widget.children).title;
+		
+		updateActionBar();
 	}
 	
 };
@@ -174,7 +241,6 @@ var retreat = function(index) {
 	}
 	
 	drawer && closeDrawer(true);
-	removeDrawerEvents();
 
 	if(OS_IOS) {
 
@@ -190,19 +256,6 @@ var retreat = function(index) {
 			}, 0);
 		});
 
-		// set up the drawer
-		var newCurrentWidget = _.first(_.last(widgetViews, steps+1)).widget;
-		drawer = newCurrentWidget.getView("drawer");
-		drawerpull = newCurrentWidget.getView("drawerpull");
-		
-		if(drawerContent) {
-			setTimeout(function() {
-				// the setTimeout is to ensure that the operation doesn't occur before the closeDrawer has is complete.
-				drawer.add(drawerContent);
-			}, 0);
-		}
-		setTimeout(setupDrawerEvents, 0);
-
 	} else {
 
 		$.navigation.scrollToView(_.first(_.last($.navigation.views, steps+1)));
@@ -211,7 +264,9 @@ var retreat = function(index) {
 			$.navigation.removeView(_.last($.navigation.views));
 		}
 		Ti.API.trace("com.capnajax.navigation::widget::retreat("+index+") - scrolling to view");
-		
+
+		updateActionBar();
+
 	}
 
 };
@@ -284,10 +339,8 @@ var openDrawer = function() {
 var closeDrawer = function(now) {
 	
 	if(now) {
-		drawer.applyProperties({
-			left: -drawer.rect.width,
-			visible: false
-		});
+		drawer.left = -drawer.rect.width;
+		drawer.visible = false;
 		drawerOpen = false;	
 		drawerContent.fireEvent("drawerclosed", {immediate: true});
 	} else {
@@ -302,23 +355,9 @@ var closeDrawer = function(now) {
 /**
  * if the drawer is closed, open it, if open, close it
  */
-var toggleDrawer = function() {
+function toggleDrawer() {
 
 	drawerOpen ? closeDrawer() : openDrawer();
-
-};
-
-var setupDrawerEvents = function() {
-
-	if(OS_IOS) {	
-		drawerpull.addEventListener("click", toggleDrawer);	
-	}
-	
-};
-
-var removeDrawerEvents = function() {
-
-	drawerpull && drawerpull.removeEventListener("click", toggleDrawer);	
 
 };
 
@@ -334,11 +373,6 @@ if(OS_ANDROID) {
 	};
 
 	$.widget.addEventListener('androidback', back);
-
-}
-if(!OS_IOS) {
-
-	setupDrawerEvents();	
 
 }
 
