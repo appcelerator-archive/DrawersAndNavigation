@@ -9,7 +9,9 @@
 	visible: false,
 	backgroundColor: "black"
 }
+"#detailWindow":{width:Ti.UI.FILL},
 "#first":{},
+"#menu":{},
 "MenuItem[platform=android]": {
     showAsAction: Ti.Android.SHOW_AS_ACTION_ALWAYS
 },

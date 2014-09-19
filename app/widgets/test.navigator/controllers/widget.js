@@ -62,6 +62,9 @@ var setControlSize = function() {
 };
 
 $.widget.addEventListener('postlayout', setControlSize);
+Ti.Gesture.addEventListener('orientationchange', setControlSize);
+
+
 $.navigationParent.addEventListener('postlayout', function() {
 	$.hubInner.applyProperties({
 		borderRadius: ($.hubInner.rect.width/2)
@@ -69,6 +72,11 @@ $.navigationParent.addEventListener('postlayout', function() {
 	$.hub.applyProperties({
 		borderRadius: ($.hub.rect.width/2)
 	});
+});
+
+// prevent a memory leak due to a global event
+$.widget.addEventListener('close', function() {
+	Ti.Gesture.removeEventListener('orientationchange', setControlSize);
 });
 
 setControlSize();

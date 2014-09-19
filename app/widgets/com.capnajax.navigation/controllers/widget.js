@@ -5,7 +5,7 @@ var duration = 400;
 var init = function(opts) {
 	if(opts.drawerContent) {
 		drawerContent = opts.drawerContent;
-		if(!OS_IOS) {
+		if(!OS_IOS || Alloy.isTablet) {
 			drawer.add(opts.drawerContent);
 		}
 	}
@@ -16,20 +16,21 @@ var drawer, drawerContent;
 // on iOS we have to set the drawer with each navigation, on others we can set the content once
 if(OS_IOS) {
 	drawerContent = null;
-	$.first.drawerpull.addEventListener('click', toggleDrawer);
-} else {
+	if(Alloy.isHandheld) {
+		$.first.drawerpull.addEventListener('click', toggleDrawer);
+	} else {
+		$.widget.addEventListener('visible', function(e) {
+			if(e.view==="detail") {
+				$.first.getView('win').leftNavButton = e.button;
+			}
+		});
+	}
+} 
+if(!OS_IOS || Alloy.isTablet) { // everything but the iPhone
 	drawer = $.drawer;
 }
 
-// TODO remove this debug code
-var logObj = function(obj, name) {
-	var logStr = (name+":\n");
-	for(var i in obj) {
-		logStr += "\t"+i+" == "+(null==obj[i]?"null":(typeof obj[i] === 'function'?'[function()]':obj[i].toString())) + '\n';
-	}
-	logStr += '\n';
-	console.log(logStr);
-};
+var detail = (OS_IOS && Alloy.isTablet) ? $.detailWindow : $.widget;
 
 if(OS_IOS) {
 	
@@ -41,8 +42,6 @@ if(OS_IOS) {
 	 */
 	var removeWidgetView = function(e) {
 
-		Ti.API.debug("com.capnajax.navigation::widget::removeWidgetView - called");
-
 		for(var i = widgetViews.length-1; i >= 0; i--) {
 			if(widgetViews[i].window === e.source) {
 				widgetViews.splice(i, 1);
@@ -50,16 +49,15 @@ if(OS_IOS) {
 			}
 		}
 		
-		Ti.API.debug("com.capnajax.navigation::widget::removeWidgetView - calling resetDrawer");
-		resetDrawer();
+		if(Alloy.isHandheld) {
+			resetDrawer();
+		}
 	};
 	
 	/**
-	 * ensure the drawer is linked to the correct window. 
+	 * ensure the drawer is linked to the correct window.  Function not necessary on iPad
 	 */
-	var resetDrawer = _.debounce(function() {
-		
-		Ti.API.debug("com.capnajax.navigation::widget::resetDrawer - called");
+	var resetDrawer = Alloy.isHandheld && _.debounce(function() {
 		
 		// set up the drawer
 		var newCurrentWidget = widgetViews && (widgetViews.length > 0) && _.last(widgetViews).widget;
@@ -88,7 +86,7 @@ if(OS_IOS) {
 	var updateActionBar = function() {
 		
 		setTimeout(function() {
-			var actionBar = $.widget.activity.actionBar;
+			var actionBar = detail.activity.actionBar;
 			if(actionBar && $.navigation.views && $.navigation.views.length > 0) {
 				var lastView = _.last($.navigation.views);
 				actionBar.title = _.last($.navigation.views).title;
@@ -132,8 +130,7 @@ var advance = function(view) {
 			} else {
 				pageWidget = Widget.createWidget('com.capnajax.navigation', 'page');
 				win = pageWidget.getView();
-				
-				//pageWidget.getView("drawer").remove(drawerContent);
+
 			}
 	
 			widgetViews.push({window: win, widget: pageWidget, content:view});
@@ -143,7 +140,7 @@ var advance = function(view) {
 			// create window using the page widget
 			pageWidget.content.add(view);
 	
-			win.addEventListener('swipe', function(e) {
+			Alloy.isHandheld && win.addEventListener('swipe', function(e) {
 				if (e.direction === 'right' && !drawerOpen) {
 					openDrawer();
 				}
@@ -153,24 +150,25 @@ var advance = function(view) {
 			});
 	
 			// move drawer to the new window
-			drawer = pageWidget.getView("drawer");
-	
-			drawerContent && drawer.add(drawerContent);
-	
+			if(Alloy.isHandheld) {
+				drawer = pageWidget.getView("drawer");
+				drawerContent && drawer.add(drawerContent);
+			}
+
 			if (widgetViews.length > 1 ) {
 				win.leftNavButton = undefined;
 			}
-	
+
 			// advance animation
 			if(widgetViews.length > 1) {
-				$.widget.openWindow(win, {animated:true});
+				detail.openWindow(win, {animated:true});
 			}
-
+			
 		}, 0);
 		
 	} else {
 		
-		$.widget.addEventListener('swipe', function(e) {
+		detail.addEventListener('swipe', function(e) {
 			if (e.direction === 'right' && !drawerOpen) {
 				openDrawer();
 			}
@@ -184,7 +182,7 @@ var advance = function(view) {
 		
 		$.navigation.scrollToView(view);		
 		
-		$.widget.title = _.last($.widget.children).title;
+		detail.title = _.last(detail.children).title;
 		
 		updateActionBar();
 	}
@@ -201,8 +199,6 @@ var advance = function(view) {
 var retreat = function(index) {
 	
 	var viewsArray = OS_IOS ? widgetViews : $.navigation.views;
-	
-	Ti.API.trace("com.capnajax.navigation::widget::retreat("+index+") called, viewsArray.length = " + viewsArray.length);
 	
 	// determine how many screens I need to retreat
 	var steps = 0;
@@ -226,8 +222,6 @@ var retreat = function(index) {
 		
 	}
 	
-	Ti.API.trace("com.capnajax.navigation::widget::retreat("+index+") steps = " + steps);
-
 	if(steps <= 0) {
 		// zero or invalid input
 		// do nothing;
@@ -244,15 +238,15 @@ var retreat = function(index) {
 
 	if(OS_IOS) {
 
-		// remove the drawer from the about-to-be-closed window
-		_.last(widgetViews).widget.getView("drawer").removeAllChildren();
+		// remove the drawer from the about-to-be-closed window (iPhone-only)
+		Alloy.isHandheld && _.last(widgetViews).widget.getView("drawer").removeAllChildren();
 
 		// close all the windows that are no longer needed, the current window must be closed last.
 		windowsToClose = _.last(widgetViews, steps);
 		_.each(windowsToClose, function(element) {
 			// the setTimeout is to ensure that the operation doesn't occur before the closeDrawer has is complete.
 			setTimeout(function() {
-				$.widget.closeWindow(element.window);
+				detail.closeWindow(element.window);
 			}, 0);
 		});
 
@@ -260,10 +254,8 @@ var retreat = function(index) {
 
 		$.navigation.scrollToView(_.first(_.last($.navigation.views, steps+1)));
 		for(var i = 0; i < steps; i++) {
-			Ti.API.trace("com.capnajax.navigation::widget::retreat("+index+") - removing view");
 			$.navigation.removeView(_.last($.navigation.views));
 		}
-		Ti.API.trace("com.capnajax.navigation::widget::retreat("+index+") - scrolling to view");
 
 		updateActionBar();
 
@@ -280,7 +272,7 @@ var home = function(newHome) {
 		if(OS_IOS) {
 			
 			for(var i = 1; i < widgetViews.length; i++) {
-				$.widget.closeWindow(widgetViews[i].window);
+				detail.closeWindow(widgetViews[i].window);
 			}
 
 			var oldContent = widgetViews[0].content;
@@ -318,37 +310,53 @@ var home = function(newHome) {
  */
 var openDrawer = function() {
 
-	// animate drawer openning -- both the drawer and the drawer pull, but the pull can lag slightly behind the drawer
+	if(!OS_IOS || Alloy.isHandheld) { // everything but iPad
 
-	// the time for the animation, so that the drawer is moving at about the same speed no matter where the animation
-	// starts from
-	var animationDuration = duration * -drawer.rect.x / drawer.rect.width;
+		// animate drawer openning -- both the drawer and the drawer pull, but the pull can lag slightly behind the drawer
+	
+		// the time for the animation, so that the drawer is moving at about the same speed no matter where the animation
+		// starts from
+		var animationDuration = duration * -drawer.rect.x / drawer.rect.width;
+	
+		drawer.visible = true;
+		drawerOpen = true;
+		
+		drawerContent.fireEvent("draweropen");
+		
+		drawer.animate({left: 0, duration: animationDuration});
 
-	drawer.visible = true;
-	drawerOpen = true;
-	
-	drawerContent.fireEvent("draweropen");
-	
-	drawer.animate({left: 0, duration: animationDuration});
+	} else { // iPad
+		
+		drawerOpen = true;
+		
+	}
 };
 
 /**
- * Close the drawer
+ * Close the drawer. 
  * @param now set to true if the drawer is to close immediately without waiting for animation.
  */
 var closeDrawer = function(now) {
 	
-	if(now) {
-		drawer.left = -drawer.rect.width;
-		drawer.visible = false;
-		drawerOpen = false;	
-		drawerContent.fireEvent("drawerclosed", {immediate: true});
-	} else {
-		drawer.animate({left: -drawer.rect.width, duration: duration}, function() {
+	if(!OS_IOS || Alloy.isHandheld) { // everything but iPad
+	
+		if(now) {
+			drawer.left = -drawer.rect.width;
 			drawer.visible = false;
 			drawerOpen = false;	
-			drawerContent.fireEvent("drawerclosed", {immediate: false});
-		});
+			drawerContent.fireEvent("drawerclosed", {immediate: true});
+		} else {
+			drawer.animate({left: -drawer.rect.width, duration: duration}, function() {
+				drawer.visible = false;
+				drawerOpen = false;	
+				drawerContent.fireEvent("drawerclosed", {immediate: false});
+			});
+		}
+		
+	} else { // iPad
+		
+		drawerOpen = false;
+		
 	}
 };
 
@@ -357,9 +365,26 @@ var closeDrawer = function(now) {
  */
 function toggleDrawer() {
 
-	drawerOpen ? closeDrawer() : openDrawer();
+	drawerOpen ? closeDrawer() : openDrawer();	
 
 };
+
+if(OS_IOS && Alloy.isTablet) {
+	
+	var orientationEvent = function(e) {
+		if(Ti.Gesture.isLandscape() && drawerOpen == false) {
+			drawerContent.fireEvent("draweropen");
+		}
+		if(Ti.Gesture.isPortrait() && drawerOpen == false) {
+			drawerContent.fireEvent("drawerclosed", {immediate: true});
+		}
+	};
+	Ti.Gesture.addEventListener('orientationchange', orientationEvent);
+	$.widget.addEventListener('close', function() {
+		Ti.Gesture.removeEventListener('orientationchange', orientationEvent);
+	});
+	
+}
 
 if(OS_ANDROID) {
 
@@ -368,11 +393,11 @@ if(OS_ANDROID) {
 			retreat();
 			e.cancelBubble = true;
 		} else {
-			$.widget.close();
+			detail.close();
 		}
 	};
 
-	$.widget.addEventListener('androidback', back);
+	detail.addEventListener('androidback', back);
 
 }
 

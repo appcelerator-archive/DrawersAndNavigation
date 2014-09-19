@@ -4,6 +4,6 @@
             <Button id="drawerpull" class="menuButton"/>
         </LeftNavButton>
 		<View id="content" />		
-		<View id="drawer" />
+		<View id="drawer" formFactor="handheld" />
 	</Window>
 </Alloy>

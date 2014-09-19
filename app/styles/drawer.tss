@@ -15,6 +15,10 @@
 "#menuItems": {
 	left: 10, right: 10, top: 10, height: 200, layout: "vertical", backgroundColor: "yellow"
 },
+"#menuItems[platform=ios formFactor=tablet]": {
+	top: 30
+}
+
 ".menuItem": {
 	color: "#fff",
 	height: 50
