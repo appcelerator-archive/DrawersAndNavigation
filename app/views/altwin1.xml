@@ -1,5 +1,5 @@
 <Alloy>
-	<View class="container">
+	<View class="container" title="Alt Window 1">
 		<Widget id="control" src="test.navigator" />
 	</View>
 </Alloy>

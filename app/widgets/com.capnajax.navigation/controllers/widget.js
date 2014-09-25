@@ -11,10 +11,20 @@ var init = function(opts) {
 	}
 };
 
-var drawer, drawerContent;
 
-// on iOS we have to set the drawer with each navigation, on others we can set the content once
+//
+//	Set up the drawer
+//
+//	On iPhone the drawer has to be re-attached to windows with each navigation. 
+//	On iPad the drawer is resident in the master view of the split window
+//	On Android the drawer is resident in its own view
+//
+
+var drawer, drawerContent;
+var detail = (OS_IOS && Alloy.isTablet) ? $.detailWindow : $.widget;
+
 if(OS_IOS) {
+
 	drawerContent = null;
 	if(Alloy.isHandheld) {
 		$.first.drawerpull.addEventListener('click', toggleDrawer);
@@ -30,9 +40,13 @@ if(!OS_IOS || Alloy.isTablet) { // everything but the iPhone
 	drawer = $.drawer;
 }
 
-var detail = (OS_IOS && Alloy.isTablet) ? $.detailWindow : $.widget;
 
 if(OS_IOS) {
+
+	//
+	//	WidgetViews are used to track the current position in navigation on iOS. They are not necessary in the Android
+	//	implementation.
+	//
 	
 	var widgetViews = [];
 	
@@ -111,11 +125,22 @@ if(OS_IOS) {
 }
 
 
+/**
+ *	The "drill-down" feature. This is how you navigate to the right, or deeper into the navigation tree.
+ * 	view {Ti.UI.View} The view for the screen we are navigating into
+ */
 var advance = function(view) {
 
 	drawer && closeDrawer(true);
 
-	if(OS_IOS) {
+	advanceImpl(view, false);
+	
+};
+
+
+if(OS_IOS) {
+	
+	var advanceImpl = function(view) {
 
 		setTimeout(function() {
 
@@ -139,6 +164,8 @@ var advance = function(view) {
 	
 			// create window using the page widget
 			pageWidget.content.add(view);
+	
+			win.title = view.title;
 	
 			Alloy.isHandheld && win.addEventListener('swipe', function(e) {
 				if (e.direction === 'right' && !drawerOpen) {
@@ -165,9 +192,12 @@ var advance = function(view) {
 			}
 			
 		}, 0);
-		
-	} else {
-		
+
+	};
+
+} else {
+
+	var advanceImpl = function(view, first) {
 		detail.addEventListener('swipe', function(e) {
 			if (e.direction === 'right' && !drawerOpen) {
 				openDrawer();
@@ -176,19 +206,25 @@ var advance = function(view) {
 				closeDrawer();	
 			}
 		});
-
-		// place it to the right of the screen then slide it in over top of the existing content
-		$.navigation.addView(view);
+	
+		if(first) {
+			// place the view at the beginning of the list then immediately change to it
+			$.navigation.views = [view].concat($.navigation.views);
+			$.navigation.currentPage = 0;
+		} else {
+			// place it to the right of the screen then slide it in over top of the existing content
+			$.navigation.addView(view);
+			$.navigation.scrollToView(view);		
+		}
 		
-		$.navigation.scrollToView(view);		
 		
 		detail.title = _.last(detail.children).title;
 		
 		updateActionBar();
-	}
+		
+	};
 	
-};
-
+}
 
 /**
  * Goes back in the progression of screens.
@@ -253,9 +289,11 @@ var retreat = function(index) {
 	} else {
 
 		$.navigation.scrollToView(_.first(_.last($.navigation.views, steps+1)));
-		for(var i = 0; i < steps; i++) {
-			$.navigation.removeView(_.last($.navigation.views));
-		}
+		setTimeout(function() {
+			for(var i = 0; i < steps; i++) {
+				$.navigation.removeView(_.last($.navigation.views));
+			}
+		}, 0);
 
 		updateActionBar();
 
@@ -263,6 +301,10 @@ var retreat = function(index) {
 
 };
 
+/**
+ * 	Returns to the root of the navigation tree, or moves to a new root navigation.
+ * 	@param newHome {Ti.UI.View} if starting a new navigation tree, this is the root screen.
+ */
 var home = function(newHome) {
 
 	if(newHome) {
@@ -285,22 +327,25 @@ var home = function(newHome) {
 						
 	
 		} else {
-	
-			var oldViews = _.clone($.navigation.views);
-			advance(newHome);
-			setTimeout(function(){
-				_.each(oldViews, function(element, index) {
-					$.navigation.removeView(index);
-				});
-			},500);
+
+			advanceImpl(newHome, true);
+			$.navigation.views = [newHome];
+
 		}
 
 	} else {
 
-		retreat(1);
+		if(OS_IOS) {
+			
+			retreat(1);
+			
+		} else {
+
+			home($.navigation.views[0]);
+			
+		}
 
 	}
-	
 	
 };
 
@@ -338,7 +383,7 @@ var openDrawer = function() {
  */
 var closeDrawer = function(now) {
 	
-	if(!OS_IOS || Alloy.isHandheld) { // everything but iPad
+	if(drawer && (!OS_IOS || Alloy.isHandheld)) { // everything but iPad
 	
 		if(now) {
 			drawer.left = -drawer.rect.width;
@@ -370,7 +415,7 @@ function toggleDrawer() {
 };
 
 if(OS_IOS && Alloy.isTablet) {
-	
+
 	var orientationEvent = function(e) {
 		if(Ti.Gesture.isLandscape() && drawerOpen == false) {
 			drawerContent.fireEvent("draweropen");
@@ -383,7 +428,7 @@ if(OS_IOS && Alloy.isTablet) {
 	$.widget.addEventListener('close', function() {
 		Ti.Gesture.removeEventListener('orientationchange', orientationEvent);
 	});
-	
+
 }
 
 if(OS_ANDROID) {
@@ -398,7 +443,7 @@ if(OS_ANDROID) {
 	};
 
 	detail.addEventListener('androidback', back);
-
+	
 }
 
 _.extend($, {
@@ -407,5 +452,3 @@ _.extend($, {
 	retreat: retreat,
 	home: home
 });
-
-$.widget.open();

@@ -1,13 +1,27 @@
 <Alloy>
 	<View class="container">
+		<View id="rightBorder" />
+		<View id="background" />
 		<View id="menuItems">
-			<Label id="mainPath" class="menuItem">Primary Path</Label>
-			<Label id="altPath" class="menuItem">Alternate Path</Label>
-			<Label class="menuItem">Do Something</Label>
-			<Label class="menuItem">Do Another Thing</Label>
-			<Label class="menuItem">Do That Other Thing</Label>
-			<Label class="menuItem">Stop Doing Things</Label>
-			<Label id="exit" class="menuItem">Exit the Thing-Doer</Label>
+			<View id="mainPath" class="menuItem">
+				<View id="switch1off" class="switch">
+					<Widget src="com.capnajax.vectorimage" svg="switch1,off.svg" height="80" />
+				</View>
+				<View id="switch1on" class="switch">
+					<Widget src="com.capnajax.vectorimage" svg="switch1,on.svg" height="80" />
+				</View>
+			</View>
+			<View id="altPath" class="menuItem">
+				<View id="switch2on" class="switch">
+					<Widget src="com.capnajax.vectorimage" svg="switch2,on.svg" height="80" />
+				</View>
+				<View id="switch2off" class="switch">
+					<Widget src="com.capnajax.vectorimage" svg="switch2,off.svg" height="80" />
+				</View>
+			</View>
+		</View>
+		<View id="exit" class="menuItem">
+			<Widget id="exitWidget" src="com.capnajax.vectorimage" svg="arrow,upleft.svg" width="50" height="50" />
 		</View>
 	</View>
 </Alloy>

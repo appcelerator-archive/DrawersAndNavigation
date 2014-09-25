@@ -7,12 +7,14 @@ $.control.init({
 	buttons: {
 		back: {
 			text: "Back",
+			code: "nav.retreat()",
 			callback: function(e) {
 				Alloy.Globals.navigation.retreat();
 			}
 		},
 		top: {
 			text: "Home",
+			code: "nav.home()",
 			callback: function(e) {
 				Alloy.Globals.navigation.home();
 			}

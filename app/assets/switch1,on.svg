@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="iso8859-1"?>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" height="80" width="257" style="background:blue">
+		<style type="text/css"><![CDATA[
+			.lineart { stroke: #eee; fill: #33F; stroke-width:3 }
+		]]></style>
+	<line class="lineart" x1="0" y1="40" x2="75" y2="40" />
+	<line class="lineart" x1="185" y1="25" x2="300" y2="25" />
+	<line class="lineart" x1="185" y1="55" x2="300" y2="55" />
+	<line class="lineart" x1="75" y1="40" x2="185" y2="25" />
+	<circle class="lineart" cx="75" cy="40" r="10" />
+	<circle class="lineart" cx="185" cy="25" r="10" />
+	<circle class="lineart" cx="185" cy="55" r="10" />
+</svg>
+

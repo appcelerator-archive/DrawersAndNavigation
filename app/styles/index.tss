@@ -1,15 +1,33 @@
 ".container": {
 	backgroundColor:"white"
 },
-"#loginWindow": {},
-"Label": {
-	width: Ti.UI.SIZE,
-	height: Ti.UI.SIZE,
-	color: "#000"
-} 
 
-"#label": {
-	font: {
-		fontSize: 12
-	}
+"#loginArea": {
+	height: 124
+},
+"#fieldsArea": {
+	left: 15,
+	right: 124,
+	height: Ti.UI.SIZE,
+},
+"TextField": {
+	left: 0,
+	right: 0,
+	height: 40,
+	backgroundColor: "#eee",
+	borderRadius: 5
+},
+"#username": {
+	top: 0,
+	hintText: "User ID"
+},
+"#password": {
+	top: 54,
+	hintText: "Password"
+},
+"#loginButton": {
+	right: 15, top:15, height: 94, width: 94,
+	borderRadius: 47,
+	backgroundColor: "#0c0"
 }
+

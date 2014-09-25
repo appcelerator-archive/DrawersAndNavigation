@@ -14,7 +14,7 @@
 	</NavigationWindow>
 
 	<!-- Android -->
-	<Window platform="android">
+	<Window platform="android" exitOnClose="false">
         <Menu id="menu" platform="android" >
             <MenuItem id="item1" title="Menu" />
         </Menu>

@@ -1,15 +1,17 @@
 <Alloy>
-	<View class=".container">
+	<View class="container">
 		<Label id="windowname" />
 		
 		<View id="navigationParent">
-			<Button id="backto" />
-			<Button id="back"/>
-			<Button id="forward" />
-			<Button id="top" />
-			<Button id="altpath" />
-			<View id="hubInner" />
-			<View id="hub" />
+			<View id="backto"	class="navItem" />
+			<View id="back"		class="navItem" />
+			<View id="forward"	class="navItem" />
+			<View id="top"		class="navItem" />
+			<View id="altpath"	class="navItem" />
+			<View id="c13"		class="navItem" />
+			<View id="c22"		class="navItem" />
+			<View id="c31"		class="navItem" />
+			<View id="c32"		class="navItem" />
 		</View>
 		
 	</View>

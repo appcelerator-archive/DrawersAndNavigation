@@ -5,7 +5,7 @@
 }
 "#drawer[platform=android]": {
 	width: 260,
-	left: -300,
+	left: -260,
 	visible: false,
 	backgroundColor: "black"
 }

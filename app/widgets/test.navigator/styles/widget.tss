@@ -1,60 +1,41 @@
 ".container[platform=android]": {
-	opacity: 0
-}
-
-"Button": {
-	borderColor: "white",
-	borderWidth: 3,
-	backgroundColor: "#66F",
-	color: "white",
-	visible: false,
-	width: "40%",
-	height: "20%"
-}
+	layout: "vertical",
+	height: Ti.UI.SIZE
+},
 
 "#windowname": {
 	width: "100%",
 	textAlign: Titanium.UI.TEXT_ALIGNMENT_CENTER,
-	height: 20
+	color: "#171717",
+	font: {fontSize: 20}
 }
+".nothidden": {
+	height: Ti.UI.SIZE,
+	top: 15,
+},
+".hidden": {
+	height: 10,
+	top:0,
+	visible: false
+},
 
 "#navigationParent": {
-	borderColor: "white",
-	borderRadius: 100,
-	borderWidth: 3
+	height: Ti.UI.FILL,
+	width: Ti.UI.FILL
 },
 
-"#backto": {
-	center: {x: "28.284%", y: "28.284%"},
-	height: "20%",
-	width: "40%"
-}
-"#back": {
-	center: {x: "20%", y:"50%" }
+"#backto": {},
+"#back": {},
+"#forward": {},
+"#top": {},
+"#altpath": {},
+"#c13": {},
+"#c22": {},
+"#c31": {},
+"#c32": {},
+
+".navItem": {
+	layout: "vertical",
 },
-"#forward": {
-	center: {x: "80%", y:"50%" }
-},
-"#top": {
-	center: {x: "50%", y:"20%" }
-},
-"#altpath": {
-	center: {x: "50%", y:"80%" }
-},
-"#hub": {
-	width: "28.284%",
-	height: "28.284%",
-	center: {x: "50%", y: "50%"},
-	borderRadius: 80,
-	borderColor: "white",
-	backgroundColor: "white"
-}
-"#hubInner": {
-	width: "28.284%",
-	height: "28.284%",
-	center: {x: "50%", y: "50%"},
-	borderRadius: 80,
-	backgroundColor: "white"
-}
 
 

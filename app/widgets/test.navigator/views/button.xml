@@ -1,0 +1,9 @@
+<Alloy>
+	<View id="button">
+		<View id="buttonFace"/>
+		<View id="textContainer">
+			<Label id="textLabel"/>
+			<Label id="codeLabel" formFactor="tablet"/>
+		</View>
+	</View>
+</Alloy>

@@ -1,5 +1,5 @@
 
-function doClick(e) {
+function login(e) {
 
 	var nav = Alloy.createWidget("com.capnajax.navigation");
 	nav.init({
@@ -8,24 +8,24 @@ function doClick(e) {
 
 	var firstController = Alloy.createController("window1");
 	nav.advance(firstController.getView());
+	nav.getView().open();
 
 	Alloy.Globals.navigation = nav;
-
-	// this line is not necessary for the widget, only saving it for use in a test case.
+	
+	// this line is not necessary for the widget, I'm saving a reference to window1 it for use in a test case.
 	Alloy.Globals.window1 = firstController.getView();
 }
 
-$.loginWindow.addEventListener('open', function() {
-	if (OS_ANDROID) {
-		$.loginWindow.activity.actionBar.hide();
-	}
-});
+if (OS_ANDROID) {
+	$.index.addEventListener('open', function() {
+		$.index.activity.actionBar.hide();
+	});
+	
+	$.index.addEventListener('close', function() {
+		Titanium.Android.currentActivity.finish();
+	});
+}
 
-$.loginWindow.open();
+$.index.open();
 
-setTimeout(function() {
-	$.label.fireEvent("click");
-}, 200);
-
-
-
+Alloy.Globals.loginWindow = $.index;

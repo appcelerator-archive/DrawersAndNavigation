@@ -7,18 +7,21 @@ $.control.init({
 	buttons: {
 		forward: {
 			text: "Window 3",
+			code: "nav.advance(window3)",
 			callback: function(e) {
 				Alloy.Globals.navigation.advance(Alloy.createController("window3").getView());
 			}
 		},
 		back: {
 			text: "Back",
+			code: "nav.retreat()",
 			callback: function(e) {
 				Alloy.Globals.navigation.retreat();
 			}
 		},
 		top: {
 			text: "Home",
+			code: "nav.home()",
 			callback: function(e) {
 				Alloy.Globals.navigation.home();
 			}

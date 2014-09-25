@@ -1,5 +1,13 @@
 <Alloy>
-	<Window class="container" id="loginWindow">
-		<Label id="label" onClick="doClick">Login</Label>
+	<Window class="container" onClick="login" exitOnClose="true">
+		<View id="loginArea">
+			<View id="fieldsArea">
+				<TextField id="username" />
+				<TextField id="password" />
+			</View>
+			<View id="loginButton">
+				<Widget src="com.capnajax.vectorimage" svg="arrow,right.svg" width="50" height="40" />
+			</View>
+		</View>
 	</Window>
 </Alloy>

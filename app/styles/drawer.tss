@@ -3,24 +3,42 @@
 	top: 0,
 	left: 0,
 	right: 0,
-	bottom: 0
+	bottom: 0,
+	backgroundColor: '#eee'
 },
 
-".container[platform=ios]": {
-  	viewShadowColor: 'gray',
+"#rightBorder": {
+	top: 0,
+	right: 0,
+	bottom: 0,
+	width: 3,
+	backgroundColor: 'blue'
 },
 
-"#mainPath":{},
+"#mainPath":{
+	top: 20, height: 80
+},
+
+"#altPath":{
+	top: 120, height: 80
+}
 
 "#menuItems": {
-	left: 10, right: 10, top: 10, height: 200, layout: "vertical", backgroundColor: "yellow"
+	left: 0, right: 3, top: 0, bottom: 100
 },
-"#menuItems[platform=ios formFactor=tablet]": {
-	top: 30
-}
-
 ".menuItem": {
-	color: "#fff",
-	height: 50
+	
+},
+".switch": {
+	left: 0,
+	width: 257
+}
+".off": {
+	visible: false
 }
 
+"#exit": {
+	bottom: 10, width: 94, height: 94,
+	borderRadius: 47,
+	backgroundColor: 'blue'
+}

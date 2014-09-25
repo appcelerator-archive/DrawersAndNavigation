@@ -1,0 +1,26 @@
+
+
+"#button":{
+	layout: 'vertical'
+}
+
+"#buttonFace":{
+	width: 74,
+	height: 74,
+	borderRadius: 37,
+	backgroundColor: 'white'
+}
+
+"#textContainer": {
+	visible: false,
+	layout:"vertical",
+	height: Ti.UI.SIZE
+},
+
+"#textLabel": {
+	color: "#171717"
+},
+"#codeLabel": {
+	color: "#171717",
+	font: {fontFamily: "monospace"}
+}

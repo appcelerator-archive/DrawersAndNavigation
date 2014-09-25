@@ -3,7 +3,9 @@ DrawersAndNavigation
 
 This is a widget that provides a common navigation between iPhone, iPad, and Android. It uses NavigationWindow on iOS and supports back button and ActionBar on Android. It also provides a drawer that is common to all screens.
 
-Use this framework to navigate through a tree-structured set of screens and 
+View on [Android](./DrawersAndroid.mp4), [iPhone](./DrawersiPhone.mp4)
+
+Use this framework to navigate through a tree-structured set of screens, switch between trees, and open a drawer on the left side of the screen.
 
 ## Getting started
 
