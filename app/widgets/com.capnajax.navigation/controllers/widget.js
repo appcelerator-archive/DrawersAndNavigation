@@ -220,8 +220,11 @@ if(OS_IOS) {
 		
 		detail.title = _.last(detail.children).title;
 		
-		updateActionBar();
-		
+		if($.navigation.views.length == 1) {
+			$.widget.addEventListener('open', updateActionBar);
+		} else {
+			updateActionBar();
+		}
 	};
 	
 }
